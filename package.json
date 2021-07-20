@@ -3,12 +3,13 @@
         "@symfony/stimulus-bridge": "^2.0.0",
         "@symfony/webpack-encore": "^1.0.0",
         "core-js": "^3.0.0",
+        "fork-ts-checker-webpack-plugin": "^6.2.12",
+        "postcss-import": "^14.0.2",
+        "postcss-loader": "~3.0.0",
         "regenerator-runtime": "^0.13.2",
         "sass": "^1.35.2",
         "sass-loader": "^12.1.0",
         "stimulus": "^2.0.0",
-        "ts-loader": "^9.2.3",
-        "typescript": "^4.3.5",
         "webpack-notifier": "^1.6.0"
     },
     "license": "UNLICENSED",
@@ -20,9 +21,16 @@
         "build": "encore production --progress"
     },
     "dependencies": {
+        "@types/vue-datetime": "^1.0.1",
+        "highcharts": "^9.1.2",
+        "luxon": "^1.28.0",
+        "ts-loader": "^9.2.3",
         "vue": "^2.6.14",
+        "vue-datetime": "^1.0.0-beta.14",
         "vue-loader": "^15.9.7",
+        "vue-property-decorator": "^9.1.2",
         "vue-router": "^3.5.2",
-        "vue-template-compiler": "^2.6.14"
+        "vue-template-compiler": "^2.6.14",
+        "weekstart": "^1.1.0"
     }
 }
