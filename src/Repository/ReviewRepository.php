@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Review;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use DateTime;
 
 /**
  * @method Review|null find($id, $lockMode = null, $lockVersion = null)
@@ -14,37 +15,42 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ReviewRepository extends ServiceEntityRepository
 {
+    const DAILY = 'daily';
+    const WEEKLY = 'weekly';
+    const MONTHLY = 'monthly';
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Review::class);
     }
 
-    // /**
-    //  * @return Review[] Returns an array of Review objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function analysis(int $hotelId, DateTime $from, DateTime $to, string $mode): array
     {
-        return $this->createQueryBuilder('r')
-            ->andWhere('r.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('r.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $DatePoint = $this->getDateColumnPerMode($mode);
 
-    /*
-    public function findOneBySomeField($value): ?Review
-    {
         return $this->createQueryBuilder('r')
-            ->andWhere('r.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('r.hotel_id = :hotel_id')
+            ->andWhere('r.created_date BETWEEN :from AND :to')
+            ->setParameter('hotel_id', $hotelId)
+            ->setParameter('from', $from->format('Y-m-d 00:00:00.000'))
+            ->setParameter('to', $to->format('Y-m-d 23:59:59.999'))
+            ->select("$DatePoint date_point", 'COUNT(r.id) review_count', 'AVG(r.score) average_score')
+            ->groupBy('date_point')
+            ->orderBy('date_point', 'ASC')
             ->getQuery()
-            ->getOneOrNullResult()
-        ;
+            ->getArrayResult();
     }
-    */
+
+    private function getDateColumnPerMode(string $mode): string
+    {
+        switch ($mode) {
+            case self::DAILY:
+                return 'DATE(r.created_date)';
+            case self::WEEKLY:
+                return 'YEARWEEK(r.created_date)';
+            case self::MONTHLY:
+            default:
+                return 'DATE_FORMAT(r.created_date, \'%Y-%m-01\')';
+        }
+    }
 }

@@ -2,12 +2,10 @@
 
 namespace App\DataFixtures;
 
-use App\Controller\HotelController;
+use Faker\Factory;
 use App\Entity\Hotel;
-use App\Repository\HotelRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Faker\Factory;
 
 class HotelFixture extends Fixture
 {
