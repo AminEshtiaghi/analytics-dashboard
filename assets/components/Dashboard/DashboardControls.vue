@@ -8,10 +8,7 @@
                         :class="{'border-gray-400 hover:border-gray-500': hotel_id.validate, 'border-red-400 hover:border-red-500': !hotel_id.validate}"
                         class="block appearance-none w-full bg-white border mt-2 px-4 py-3 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
                     <option value="0" selected>Select one of Hotels</option>
-                    <option value="1" >Hotel 1</option>
-                    <option value="2">Hotel 2</option>
-                    <option value="3">Hotel 3</option>
-                    <option value="4">Hotel 4</option>
+                    <option v-for="hotelItem in allHotels" :key="hotelItem.id" :value="hotelItem.id">{{hotelItem.name}}</option>
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
@@ -40,8 +37,13 @@
 
 <script lang="ts">
     import { Component, Vue, Watch } from 'vue-property-decorator';
+
+    // import { namespace } from 'vuex-class';
+    // const hotel = namespace('Hotel');
+
     import { Datetime } from 'vue-datetime';
     import 'vue-datetime/dist/vue-datetime.css';
+    import {Hotel} from "../../models/Hotel";
 
     interface iNumber {
         value: number;
@@ -75,6 +77,12 @@
             value: new Date('2020-04-31T05:00:00.000').toISOString(),
             validate: true,
             message: null
+        };
+        mounted() {
+            this.getAll();
+        };
+        get allHotels(): Array<Hotel> {
+            return this.$store.getters['hotel/getAll'];
         };
         @Watch('hotel_id.value')
         hotelIdChange(newValue: number|null, oldValue: number|null) {
@@ -145,6 +153,9 @@
         };
         private drawChart() :void {
             console.log('here');
+        };
+        private async getAll(): Promise<void> {
+            await this.$store.dispatch('hotel/fetchHotels');
         }
     }
 </script>

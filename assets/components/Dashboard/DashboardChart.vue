@@ -48,8 +48,8 @@
                     type: this.Data.graphType
                 },
                 credits: {
-                    text: 'Rockhopper-Penguin',
-                    href: 'https://github.com/rockhopper-penguin'
+                    text: 'Analytics Dashboard Code Challenge',
+                    href: 'https://github.com/AminEshtiaghi/analytics-dashboard'
                 },
                 title: false as Highcharts.TitleOptions,
                 xAxis: {

@@ -3,15 +3,16 @@
 namespace App\Controller;
 
 use App\Dto\Response\Transformer\AnalyticsResponseDtoTransformer;
-use App\Repository\ReviewRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Request;
-use DateTime;
-use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use App\Repository\ReviewRepository;
+use Throwable;
+use DateTime;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 
 class AnalyticsController extends AbstractController
 {
@@ -25,10 +26,15 @@ class AnalyticsController extends AbstractController
     }
 
     #[Route('/api/analytics', name: 'api.analytics')]
-    public function index(ReviewRepository $repository): JsonResponse
+    /**
+     * @param ReviewRepository $reviewRepository
+     * @return JsonResponse
+     * @throws Throwable
+     */
+    public function index(ReviewRepository $reviewRepository): JsonResponse
     {
         $request = Request::createFromGlobals();
-        $errors = $this->validate($request->query->all());
+        $errors = $this->validate($request);
 
         if (count($errors)) {
             $errorsString = (string) $errors;
@@ -40,15 +46,17 @@ class AnalyticsController extends AbstractController
         $toDate = new DateTime($request->query->get('to'));
 
         $mode = $this->getMode($fromDate, $toDate);
-        $resultItems = $repository->analysis($hotelId, $fromDate, $toDate, $mode);
+        $resultItems = $reviewRepository->analysis($hotelId, $fromDate, $toDate, $mode);
 
         $dto = $this->analyticsResponseDtoTransformer->transformFromArrayItems($resultItems);
 
         return new JsonResponse($dto);
     }
 
-    private function validate(array $data)
+    private function validate($request)
     {
+        $data = $request->query->all();
+
         $constraints = new Assert\Collection([
             'hotel_id' => [
                 new Assert\NotBlank(),
