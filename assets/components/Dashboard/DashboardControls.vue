@@ -2,7 +2,7 @@
     <div class="flex flex-wrap my-6">
         <div class="w-full lg:w-1/3 mb-6 px-2 md:mb-0">
             <label for="hotel" >Hotel</label>
-            <div class="inline-block relative w-full">
+            <div v-if="!isLoading" class="inline-block relative w-full">
                 <select id="hotel"
                         v-model="hotel_id.value"
                         :class="{'border-gray-400 hover:border-gray-500': hotel_id.validate, 'border-red-400 hover:border-red-500': !hotel_id.validate}"
@@ -14,7 +14,13 @@
                     <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                 </div>
             </div>
-            <p v-if="!hotel_id.validate" class="text-red-500 text-xs italic mt-2">{{hotel_id.message}}</p>
+            <p v-if="!isLoading && !hotel_id.validate" class="text-red-500 text-xs italic mt-2">{{hotel_id.message}}</p>
+            <div v-if="isLoading" class="inline-block relative w-full">
+                <input type="text"
+                       value="Hotels data are loading..."
+                       class="appearance-none block w-full bg-gray-300 text-gray-700 border border-gray-500 rounded mt-2 py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-blue-100"
+                       disabled>
+            </div>
         </div>
         <div class="w-full lg:w-1/3 mb-6 px-2 md:mb-0">
             <label for="from" >From</label>
@@ -36,14 +42,12 @@
 </template>
 
 <script lang="ts">
-    import { Component, Vue, Watch } from 'vue-property-decorator';
-
-    // import { namespace } from 'vuex-class';
-    // const hotel = namespace('Hotel');
+    import { Component, Vue, Watch, Emit } from 'vue-property-decorator';
 
     import { Datetime } from 'vue-datetime';
     import 'vue-datetime/dist/vue-datetime.css';
     import {Hotel} from "../../models/Hotel";
+    import {AnalyticsRequestData} from "../../models/AnalyticsRequestData";
 
     interface iNumber {
         value: number;
@@ -78,6 +82,8 @@
             validate: true,
             message: null
         };
+        public hotels: Array<Hotel> = [];
+        public isLoading: boolean = false;
         mounted() {
             this.getAll();
         };
@@ -151,11 +157,24 @@
 
             this.drawChart();
         };
-        private drawChart() :void {
-            console.log('here');
+        @Emit('fetch-chart')
+        public drawChart() :AnalyticsRequestData {
+            return {
+                hotel_id: this.hotel_id.value,
+                from_date: new Date(this.from_date.value),
+                to_date: new Date(this.to_date.value)
+            };
         };
-        private async getAll(): Promise<void> {
-            await this.$store.dispatch('hotel/fetchHotels');
+        private getAll(): void {
+
+            this.isLoading = true;
+
+            this.$store.dispatch('hotel/fetchHotels')
+            .then((hotels: Array<Hotel>) => {
+                this.hotels = hotels;
+                this.isLoading = false;
+            });
+
         }
     }
 </script>

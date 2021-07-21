@@ -34,7 +34,7 @@ class ReviewRepository extends ServiceEntityRepository
             ->setParameter('hotel_id', $hotelId)
             ->setParameter('from', $from->format('Y-m-d 00:00:00.000'))
             ->setParameter('to', $to->format('Y-m-d 23:59:59.999'))
-            ->select("$DatePoint date_point", 'COUNT(r.id) review_count', 'AVG(r.score) average_score')
+            ->select("$DatePoint date_point", 'COUNT(r.id) review_count', 'AVG(r.score) average_score', "'$mode' mode")
             ->groupBy('date_point')
             ->orderBy('date_point', 'ASC')
             ->getQuery()

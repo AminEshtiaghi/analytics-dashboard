@@ -4,19 +4,16 @@ import {RootState} from "../types";
 import {Hotel} from "../../models/Hotel";
 
 export const actions: ActionTree<HotelState,RootState> = {
-    fetchHotels({commit, getters}): void {
+    fetchHotels({commit}): Promise<Array<Hotel>> {
 
-        const allHotels: Array<Hotel> = getters['getAll'];
-        if (allHotels.length > 0) {
-            return;
-        }
-
-        fetch('/api/hotel/all')
+        return fetch('/api/hotel/all')
         .then((response) => {
             return response.json();
         })
         .then((hotels: Array<Hotel>) => {
             commit('setHotels', hotels);
+
+            return hotels;
         });
     }
 };

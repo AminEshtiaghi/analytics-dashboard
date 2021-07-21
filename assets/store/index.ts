@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex, {StoreOptions} from 'vuex';
 import {RootState} from './types';
 import {hotel} from './hotel';
+import {analytics} from './analytics';
 
 // import Hotel from './hotel';
 Vue.use(Vuex);
@@ -15,7 +16,8 @@ Vue.use(Vuex);
 const store: StoreOptions<RootState> = {
     state: {},
     modules: {
-        hotel
+        hotel,
+        analytics
     }
 };
 

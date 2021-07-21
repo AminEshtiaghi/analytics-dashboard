@@ -1,5 +1,12 @@
 <template>
     <div class="flex flex-wrap my-6">
+        <div v-if="isLoading" class="object-center mx-auto">
+            <img src="../../images/rotate.svg"
+                 class="animate-spin w-12 h-12 mx-auto" />
+            <span>
+                Please wait! data is retrieving...
+            </span>
+        </div>
         <div id="graph" class="w-full graph" >
         </div>
     </div>
@@ -8,38 +15,59 @@
 <script lang="ts">
     import { Component, Vue } from 'vue-property-decorator';
     import * as Highcharts from 'highcharts';
+    import {AnalyticsRequestData} from "../../models/AnalyticsRequestData";
+    import {DataPoint} from "../../models/DataPoint";
+
+    interface iHighChartData {
+        y: number;
+        count: number;
+    }
 
     interface iGraph {
-        array: Array<number>;
+        data: Array<iHighChartData>;
         graphType: string;
         categories: Array<string>;
     }
 
     @Component
     export default class DashboardChart extends Vue {
+        public isLoading: boolean = false;
         public get Data(): iGraph {
-            const array: Array<number> = [];
+            const data: Array<iHighChartData> = [];
             const graphType = 'unknown';
-            const categories = [
-                "A", "B", "C", "D"
-            ];
+            const categories: Array<string> = [];
 
             return {
-                array,
+                data,
                 graphType,
-                categories
+                categories,
             } as iGraph;
         };
-        mounted() {
-            this.viewGraph('line');
-        };
-        public viewGraph(graphType: string) {
-            this.Data.array = [];
-            this.Data.graphType = graphType;
-            for (let i = 0; i < 4; i++) {
-                this.Data.array.push(Math.round(Math.random() * 100));
-            }
-            this.graph();
+        public fetchChart(inputs: AnalyticsRequestData): void {
+
+            this.isLoading = true;
+
+            this.$store.dispatch('analytics/fetchData', inputs)
+            .then((data: Array<DataPoint>) => {
+
+                this.Data.data = [];
+                this.Data.categories = [];
+                this.Data.graphType = 'line';
+
+                data.forEach((dataPoint: DataPoint) => {
+                    this.Data.data.push({
+                        y: parseFloat(dataPoint.average.toFixed(2)),
+                        count: dataPoint.count
+                    } as iHighChartData);
+                    this.Data.categories.push(dataPoint.datePoint);
+                });
+
+                this.graph();
+
+                this.isLoading = false;
+
+            });
+
         };
         graph() {
             Highcharts.chart({
@@ -61,14 +89,33 @@
                     labels: {
                         format: "{value}"
                     },
-                    opposite: false
+                    opposite: false,
+                    max: 100.00,
+                    min: 0
                 } as Highcharts.YAxisOptions,
+                tooltip: {
+                    formatter: function () :string {
+                       return `
+                       <div>
+                            <small>${this.x}</small>
+                       </div>
+                       <br>
+                       <div>
+                            <span><b>Score:</b> ${this.y}</span>
+                       </div>
+                       <br>
+                       <div>
+                            <span><b>Review count:</b> ${this.point.count}</span>
+                       </div>
+                        `;
+                    }
+                },
                 series: [
                     {
-                        name: "test",
+                        name: "Score",
                         type: this.Data.graphType,
-                        data: this.Data.array
-                    }
+                        data: this.Data.data,
+                    },
                 ]
             });
         };
