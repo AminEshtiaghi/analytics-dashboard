@@ -53,7 +53,7 @@ class AnalyticsController extends AbstractController
         return new JsonResponse($dto);
     }
 
-    private function validate($request)
+    private function validate(Request $request)
     {
         $data = $request->query->all();
 
@@ -69,6 +69,7 @@ class AnalyticsController extends AbstractController
             'to' => [
                 new Assert\NotBlank(),
                 new Assert\Date(),
+                new Assert\GreaterThanOrEqual($request->query->get('from'))
             ]
         ]);
 
