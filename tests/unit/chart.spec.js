@@ -1,10 +1,13 @@
 import DashboardControls from '@/components/Dashboard/DashboardChart.vue';
 import {shallowMount} from "@vue/test-utils";
 
-const object = {
+
+let fromDate = new Date();
+let toDate = new Date();
+const inputConstructor = {
     hotel_id: 1,
-    from_date: new Date('-100 days'),
-    to_date: new Date('-80 days'),
+    from_date: fromDate.setDate(fromDate.getDate()-100),
+    to_date: toDate.setDate(toDate.getDate()-80),
 };
 
 describe("DashboardChart.vue", () => {
@@ -12,7 +15,7 @@ describe("DashboardChart.vue", () => {
     beforeEach(() => {
 
         wrapper = shallowMount(DashboardControls, {
-            methods: { fetchChart: (object) => {}}
+            methods: { fetchChart: (inputConstructor) => {}}
         });
     });
 
