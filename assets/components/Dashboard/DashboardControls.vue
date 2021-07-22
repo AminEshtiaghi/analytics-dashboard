@@ -165,7 +165,7 @@
                 to_date: new Date(this.to_date.value)
             };
         };
-        private getAll(): void {
+        public getAll(): void {
 
             this.isLoading = true;
 
