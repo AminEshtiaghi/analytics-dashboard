@@ -53,6 +53,9 @@ For the front-end, Vue2 with encore is using, all the related codes are written 
 because of time limitation, I created an index page which is responsible to create main page, so the routing is handled 
 by back-end, but I believe that it is better to have two different project for back-end and front-end separately.
 
+#### SCSS
+Although the project is configured to create its own css itself by using SCSS files per each build time, but to have a better UI, I used tailwind css.
+
 #### Automation Tests
 For the automation test, I used PHPUnit for  the back-end Unit tests and Jest for implementing front-end unit tests.
 
