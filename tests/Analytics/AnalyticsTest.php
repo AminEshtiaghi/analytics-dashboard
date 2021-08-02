@@ -91,7 +91,7 @@ class AnalyticsTest extends WebTestCase
         $client = static::createClient();
 
         // Get Hotel API
-        $crawler = $client->request('GET', '/api/analytics?hotel_id=1&to=2021-01-10&from=2000-01-01');
+        $crawler = $client->request('GET', '/api/analytics?hotel_id=1&from=2021-01-10&to=2000-01-01');
 
         $this->assertResponseStatusCodeSame(409);
     }
@@ -102,7 +102,7 @@ class AnalyticsTest extends WebTestCase
         $client = static::createClient();
 
         // Get Hotel API
-        $crawler = $client->request('GET', '/api/analytics?hotel_id=1&to=2021-01-10&from=2021-01-01');
+        $crawler = $client->request('GET', '/api/analytics?hotel_id=1&from=2021-01-01&to=2021-01-10');
 
         $this->assertResponseIsSuccessful();
     }

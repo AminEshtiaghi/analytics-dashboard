@@ -27,13 +27,13 @@ class AnalyticsController extends AbstractController
 
     #[Route('/api/analytics', name: 'api.analytics')]
     /**
+     * @param Request $request
      * @param ReviewRepository $reviewRepository
      * @return JsonResponse
      * @throws Throwable
      */
-    public function index(ReviewRepository $reviewRepository): JsonResponse
+    public function index(Request $request, ReviewRepository $reviewRepository): JsonResponse
     {
-        $request = Request::createFromGlobals();
         $errors = $this->validate($request);
 
         if (count($errors)) {
@@ -57,20 +57,32 @@ class AnalyticsController extends AbstractController
     {
         $data = $request->query->all();
 
+        $hotelIdConditions = [
+            new Assert\NotBlank(),
+            new Assert\Positive(),
+        ];
+        $fromConditions = [
+            new Assert\NotBlank(),
+            new Assert\Date(),
+        ];
+        $toConditions = [
+            new Assert\NotBlank(),
+            new Assert\Date(),
+        ];
+
+        if ($request->query->has('from')) {
+            $toConditions = array_merge(
+                $toConditions,
+                [
+                    new Assert\GreaterThanOrEqual($request->query->get('from'))
+                ]
+            );
+        }
+
         $constraints = new Assert\Collection([
-            'hotel_id' => [
-                new Assert\NotBlank(),
-                new Assert\Positive(),
-            ],
-            'from' => [
-                new Assert\NotBlank(),
-                new Assert\Date(),
-            ],
-            'to' => [
-                new Assert\NotBlank(),
-                new Assert\Date(),
-                new Assert\GreaterThanOrEqual($request->query->get('from'))
-            ]
+            'hotel_id' => $hotelIdConditions,
+            'from' => $fromConditions,
+            'to' => $toConditions
         ]);
 
         return $this->validator->validate($data, $constraints);
